@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: payment-sa
+  namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-app
+  namespace: default
+  labels:
+    app: payment-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-app
+  template:
+    metadata:
+      labels:
+        app: payment-app
+      annotations:
+        "vault.hashicorp.com/agent-inject": "true"
+        "vault.hashicorp.com/role": "payment-app-role"
+        
+        # MOUNT 1: Billing DB Credentials
+        "vault.hashicorp.com/agent-inject-secret-db": "secret/data/production/billing/db-credentials"
+        "vault.hashicorp.com/agent-inject-template-db": |
+          {{- with secret "secret/data/production/billing/db-credentials" -}}
+          DB_USER="{{ .Data.data.username }}"
+          DB_PASS="{{ .Data.data.password }}"
+          {{- end -}}
+
+        # MOUNT 2: Shipping API Tokens
+        "vault.hashicorp.com/agent-inject-secret-shipping": "secret/data/production/shipping/carrier-token"
+        "vault.hashicorp.com/agent-inject-template-shipping": |
+          {{- with secret "secret/data/production/shipping/carrier-token" -}}
+          SHIPPING_KEY="{{ .Data.data.api_key }}"
+          WEBHOOK_SECRET="{{ .Data.data.webhook_secret }}"
+          {{- end -}}
+
+        # MOUNT 3: Stripe Payments Gateway
+        "vault.hashicorp.com/agent-inject-secret-stripe": "secret/data/production/payments/stripe-token"
+        "vault.hashicorp.com/agent-inject-template-stripe": |
+          {{- with secret "secret/data/production/payments/stripe-token" -}}
+          STRIPE_SECRET="{{ .Data.data.stripe_secret_key }}"
+          {{- end -}}
+    spec:
+      serviceAccountName: payment-sa
+      containers:
+      - name: alpine-app
+        image: alpine:latest
+        # UPDATED COMMAND TO PRINT ALL THREE INJECTED FILES:
+        command: ["sh", "-c", "while true; do echo \"--- 1. BILLING DATABASE SECRETS ---\"; cat /vault/secrets/db; echo \"--- 2. SHIPPING CARRIER TOKENS ---\"; cat /vault/secrets/shipping; echo \"--- 3. STRIPE GATEWAY KEY ---\"; cat /vault/secrets/stripe; sleep 15; done"]

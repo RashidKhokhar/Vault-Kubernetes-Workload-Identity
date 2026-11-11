@@ -1,0 +1,10 @@
+server:
+  dev:
+    enabled: true
+  volumes:
+    - name: vault-logs
+      emptyDir: {}
+  volumeMounts:
+    - name: vault-logs
+      mountPath: /vault/logs
+

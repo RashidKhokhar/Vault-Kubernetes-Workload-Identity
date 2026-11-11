@@ -1,0 +1,42 @@
+name: "Infrastructure & Security Pipeline Scan"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validate-and-lint:
+    name: "Automated Compliance Auditing"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout Repository Source Code"
+        uses: actions/checkout@v4
+
+      - name: "Setup Infrastructure As Code Engine"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
+
+      - name: "Execute Terraform Format Checks"
+        run: terraform fmt -check -recursive
+
+      - name: "Initialize Configuration Workspace"
+        run: terraform init -backend=false
+
+      - name: "Validate Resource Logic Compilation"
+        run: terraform validate
+
+      - name: "Setup Python Runtime"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: "Audit Automation Code Integrity"
+        run: |
+          python3 -m py_compile parse_audit.py
+          python3 -m py_compile automation-scripts/parse_audit.py
+          python3 -m py_compile automation-scripts/rotate_credentials.py
+          echo "✅ All infrastructure and automation checks compiled cleanly."

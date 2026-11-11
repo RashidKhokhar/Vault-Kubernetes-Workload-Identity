@@ -1,0 +1,12 @@
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+*.tfvars.json
+__pycache__/
+*.pyc
+vault-audit.log
+.env
+.env.*
+*.pem
+*.key
