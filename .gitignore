@@ -1,12 +1,30 @@
+# Terraform state and local provider data
 *.tfstate
 *.tfstate.*
 .terraform/
 *.tfvars
 *.tfvars.json
+
+# Python local caches
 __pycache__/
 *.pyc
+
+# Local runtime and audit artifacts
 vault-audit.log
+*.log
+
+# Local environment secrets
 .env
 .env.*
 *.pem
 *.key
+
+# Editor / AI local workspace metadata
+.claude/
+.vscode/
+.idea/
+.DS_Store
+
+# Local Python environment folders
+.venv/
+venv/
