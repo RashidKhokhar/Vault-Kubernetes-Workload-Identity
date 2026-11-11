@@ -18,47 +18,9 @@ This repository models a modern zero-trust secret delivery pattern for a multi-t
 
 ```text
 [ Kubernetes Cluster Domain ]
- ┌────────────────────────────────────────────────────────────────────────┐
- │                                                                        │
- │  1. Deploy App Manifest       2. Intercepts Pod Lifecycle             │
- │  ─────────────────────────► [ Mutating Admission Webhook ]             │
- │                                            │                           │
- │                                            ▼                           │
- │                               ┌────────────────────────┐               │
- │                               │   Vault Agent Injector │               │
- │                               └────────────┬───────────┘               │
- │                                            │ Injects Containers        │
- │                                            ▼                           │
- │                               ┌────────────────────────┐               │
- │                               │   vault-agent-init     │               │
- │                               └────────────┬───────────┘               │
- │                                            │                           │
- │                                            │ 3. JWT Token Handshake    │
- │                                            ▼                           │
- │                               [ auth/kubernetes/login ]                │
- │                                            │                           │
- └────────────────────────────────────────────┼───────────────────────────┘
-                                              │
-                                              ▼
-                                 [ HashiCorp Vault Server ]
-                                 (validates identity against Kubernetes auth)
-                                              │
- ┌────────────────────────────────────────────┼───────────────────────────┘
- │                                            │ 4. Verifies & Maps ACL
- │                                            ▼
- │                               ┌────────────────────────┐
- │                               │ Secret Engine Mount    │
- │                               │ (KV v2 /secret)        │
- │                               └────────────┬───────────┘
- │                                            │ Writes decrypted secret files
- │                                            ▼
- │   5. Secure Runtime Loop     ┌────────────────────────┐
- │  ─────────────────────────►  │ payment-app Container │
- │   (zero-disk secret exposure) │   /vault/secrets/*    │
- │                                                                        │
- └────────────────────────────────────────────────────────────────────────┘
-```
 
+![Kubernetes Vault Architecture](docs/mermaid-diagram.png)
+      
 ## What This Project Demonstrates
 
 This repository shows that the engineer understands how to combine several critical platform capabilities:
