@@ -16,11 +16,8 @@ This repository models a modern zero-trust secret delivery pattern for a multi-t
 
 ## Architecture
 
-```text
-[ Kubernetes Cluster Domain ]
-
 ![Kubernetes Vault Architecture](docs/mermaid-diagram.png)
-      
+
 ## What This Project Demonstrates
 
 This repository shows that the engineer understands how to combine several critical platform capabilities:
